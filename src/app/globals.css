@@ -3,6 +3,7 @@
 :root {
   --background: #ffffff;
   --foreground: #171717;
+  --green: #00A859; /* nova variável para verde */
 }
 
 @theme inline {
