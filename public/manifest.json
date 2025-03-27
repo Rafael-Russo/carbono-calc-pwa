@@ -1,0 +1,21 @@
+{
+    "name": "Calculadora de Impacto de Carbono",
+    "short_name": "CarbonoCalc",
+    "description": "Uma calculadora simples para medir o impacto de carbono.",
+    "icons": [
+        {
+            "src": "/icons/carbono_calc_icon-192.png",
+            "type": "image/png",
+            "sizes": "192x192"
+        },
+        {
+            "src": "/icons/carbono_calc_icon-512.png",
+            "type": "image/png",
+            "sizes": "512x512"
+        }
+    ],
+    "start_url": "/",
+    "display": "standalone",
+    "theme_color": "#000000",
+    "background_color": "#ffffff"
+}
