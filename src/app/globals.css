@@ -25,3 +25,102 @@ body {
   color: var(--foreground);
   font-family: Arial, Helvetica, sans-serif;
 }
+
+.nav-container {
+  @apply w-full overflow-x-hidden;
+}
+.nav {
+  @apply w-full h-16 px-4 flex items-center justify-between bg-[var(--green)] mb-4; /* removido p-4 */
+}
+.nav-logo {
+  @apply flex items-center cursor-pointer;
+}
+.nav-logo-img {
+  @apply h-10 mr-3;
+}
+.nav-logo-text {
+  @apply font-bold text-2xl text-white;
+}
+.nav-links {
+  @apply flex gap-4 h-full; /* removido pr-4 */
+}
+.nav-link {
+  @apply flex items-center h-full px-4 text-white cursor-pointer;
+}
+.nav-link-active {
+  @apply font-bold bg-green-700;
+}
+
+/* Classes para cartões e botões, se necessário */
+.card {
+  @apply border border-[var(--green)] rounded p-4;
+}
+.card-shadow {
+  @apply shadow;
+}
+.btn {
+  @apply py-2 px-4 rounded transition;
+}
+.btn-outline-green {
+  @apply border border-[var(--green)] text-[var(--green)] hover:bg-[var(--green)] hover:text-white;
+}
+.btn-green {
+  @apply bg-white text-[var(--green)] hover:bg-[var(--green)] hover:text-white;
+}
+
+.page-container {
+  @apply min-h-screen bg-white p-4;
+}
+.page-title {
+  @apply text-2xl font-bold text-[var(--green)] text-center mb-6;
+}
+.chart-container {
+  @apply relative flex items-center justify-center mb-8;
+}
+.chart-total {
+  @apply absolute;
+}
+.card-filter {
+  @apply mb-8 max-w-sm mx-auto p-4 border border-[var(--green)] rounded shadow;
+}
+.metrics-grid {
+  @apply grid grid-cols-1 sm:grid-cols-2 gap-4;
+}
+
+/* For Track Page */
+.map-placeholder {
+  @apply w-full bg-gray-100 border border-[var(--green)] rounded-lg overflow-hidden;
+}
+.map-content {
+  @apply w-full h-64 flex items-center justify-center text-[var(--green)];
+}
+.track-metrics-grid {
+  @apply mt-8 grid grid-cols-1 sm:grid-cols-2 gap-4 text-[var(--green)];
+}
+
+/* Calculators Cards can use .card and .btn classes already defined */
+
+/* Custom classes for Home Page */
+.home-container {
+  @apply flex flex-col items-center justify-center min-h-screen bg-white;
+}
+
+.home-content {
+  @apply text-center p-4;
+}
+
+.home-logo {
+  @apply mx-auto mb-4;
+}
+
+.home-title {
+  @apply text-5xl font-bold text-[var(--green)] mb-8;
+}
+
+.home-buttons {
+  @apply flex flex-col gap-4;
+}
+
+.home-button {
+  @apply w-64 py-3 px-4 border border-[var(--green)] text-[var(--green)] rounded hover:bg-[var(--green)] hover:text-white transition;
+}

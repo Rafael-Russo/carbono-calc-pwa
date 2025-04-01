@@ -27,9 +27,10 @@ export default function RootLayout({
       <head>
         {/* Referência ao manifest.json */}
         <link rel="manifest" href="/manifest.json" />
+        <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=1.0"/>
       </head>
       <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased px-8`}
+        className={`${geistSans.variable} ${geistMono.variable}`}
       >
         {children}
       </body>

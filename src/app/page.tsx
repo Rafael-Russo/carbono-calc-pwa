@@ -1,25 +1,26 @@
-// import Image from "next/image";
+import Image from "next/image";
 import Link from "next/link";
 
 export default function Home() {
   return (
-    <div className="flex flex-col items-center justify-center min-h-screen bg-white">
-      <div className="text-center p-4">
-        <h1 className="text-4xl font-bold text-[var(--green)] mb-8">Bem-vindo</h1>
-        <div className="flex flex-col gap-4">
+    <div className="home-container">
+      <div className="home-content">
+        <Image src="/icons/carbono_calc_icon-192.png" alt="App logo" width={200} height={200} className="home-logo" />
+        <h1 className="home-title">Bem-vindo</h1>
+        <div className="home-buttons">
           <Link href="/track">
-            <button className="py-2 px-4 border border-[var(--green)] text-[var(--green)] rounded hover:bg-[var(--green)] hover:text-white transition">
-              Função 1
+            <button className="home-button">
+              Mapa de Pegada de Carbono
             </button>
           </Link>
           <Link href="/calculators">
-            <button className="py-2 px-4 border border-[var(--green)] text-[var(--green)] rounded hover:bg-[var(--green)] hover:text-white transition">
-              Função 2
+            <button className="home-button">
+              Cálculos Manuais
             </button>
           </Link>
           <Link href="/dashboard">
-            <button className="py-2 px-4 border border-[var(--green)] text-[var(--green)] rounded hover:bg-[var(--green)] hover:text-white transition">
-              Função 3
+            <button className="home-button">
+              Dashboard
             </button>
           </Link>
         </div>
