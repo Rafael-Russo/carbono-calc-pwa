@@ -17,21 +17,27 @@ type RouteMetric = {
 	date: number;
 };
 
+type RoutePoint = {
+	lat: number;
+	lon: number;
+	transport: string;
+};
+
 export default function TrackPage() {
 	const [prevPosition, setPrevPosition] = useState<{ lat: number; lon: number } | null>(null);
 	const [distance, setDistance] = useState(0);
 	const [startTime, setStartTime] = useState<number | null>(null);
 	const [transport, setTransport] = useState("--");
-	const [route, setRoute] = useState<{ lat: number; lon: number }[]>([]);
+	const [route, setRoute] = useState<RoutePoint[]>([]);
 	const [routeMetrics, setRouteMetrics] = useState<RouteMetric[]>([]);
-	const [selectedTransport, setSelectedTransport] = useState<string>("Todos");
+	const [selectedTransports, setSelectedTransports] = useState<string[]>(["Carro", "Bicicleta", "A pé", "Onibus", "Moto", "Avião"]);
 
 	useEffect(() => {
 		const storedRoute = localStorage.getItem("trackedRoute");
 		if (storedRoute && storedRoute.trim() !== "") {
 			try {
 				const lines = storedRoute.split("\n");
-				const parsedRoute = lines.map(line => JSON.parse(line));
+				const parsedRoute: RoutePoint[] = lines.map(line => JSON.parse(line));
 				setRoute(parsedRoute);
 			} catch (error) {
 				console.error("Erro ao carregar a rota salva:", error);
@@ -53,11 +59,10 @@ export default function TrackPage() {
 			(position) => {
 				const { latitude, longitude } = position.coords;
 				const currentTime = Date.now();
-				const newPoint = { lat: latitude, lon: longitude };
-
 				if (!startTime) {
+					const newPoint: RoutePoint = { lat: latitude, lon: longitude, transport: "--" };
 					setStartTime(currentTime);
-					setPrevPosition(newPoint);
+					setPrevPosition({ lat: latitude, lon: longitude });
 					setRoute(prev => [...prev, newPoint]);
 					saveData("trackedRoute", JSON.stringify(newPoint));
 					const newMetric: RouteMetric = {
@@ -82,15 +87,22 @@ export default function TrackPage() {
 						latitude,
 						longitude
 					);
+					// Novo: não salvar movimento se distância incremental for inferior a 50 metros (0.05 km)
+					const minDistanceThreshold = 0.05;
+					if (incrementalDist < minDistanceThreshold) {
+						// ...usuário parado; ignora atualização...
+						return;
+					}
+
 					const newDistance = distance + incrementalDist;
 					setDistance(newDistance);
-					setPrevPosition(newPoint);
-					setRoute(prev => [...prev, newPoint]);
-					saveData("trackedRoute", JSON.stringify(newPoint));
-
+					setPrevPosition({ lat: latitude, lon: longitude });
 					const avgSpeed = calculateAverageSpeed(newDistance, startTime, currentTime);
 					const currentTransport = determineTransport(avgSpeed);
 					setTransport(currentTransport);
+					const newPoint: RoutePoint = { lat: latitude, lon: longitude, transport: currentTransport };
+					setRoute(prev => [...prev, newPoint]);
+					saveData("trackedRoute", JSON.stringify(newPoint));
 
 					let carbon = 0;
 					if (currentTransport === "Carro") {
@@ -120,14 +132,21 @@ export default function TrackPage() {
 				}
 			},
 			(error) => console.error("Geolocation error:", error),
-			{ enableHighAccuracy: true, maximumAge: 10000, timeout: 5000 }
+			{ enableHighAccuracy: true, maximumAge: 0, timeout: 3000 } // modificado para leituras mais precisas
 		);
 		return () => navigator.geolocation.clearWatch(watchId);
 	}, [prevPosition, startTime, distance]);
 
+	// Atualiza filtragem para incluir rotas sem classificação ("--")
 	const filteredMetrics = routeMetrics.filter(metric =>
-		selectedTransport === "Todos" ? true : metric.transport === selectedTransport
+		selectedTransports.length === 0
+			? true
+			: (selectedTransports.includes(metric.transport) || metric.transport === "--")
 	);
+	const filteredRoute = route.filter(point =>
+		selectedTransports.includes(point.transport) || point.transport === "--"
+	);
+
 	const aggregated = filteredMetrics.reduce(
 		(acc, cur) => ({
 			distance: acc.distance + cur.distance,
@@ -148,17 +167,20 @@ export default function TrackPage() {
 				<h2 className="page-title">Rastreamento de Percurso</h2>
 				<div className="map-placeholder">
 					<Map
-						route={route}
+						route={filteredRoute}
 						googleMapsApiKey={process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY as string}
 					/>
 				</div>
-				<TrackFilter selectedTransport={selectedTransport} setSelectedTransport={setSelectedTransport} />
+				<TrackFilter
+					selectedTransports={selectedTransports}
+					setSelectedTransports={setSelectedTransports}
+				/>
 				<TrackMetrics
 					aggregated={aggregated}
 					totalCarbon={totalCarbon}
 					currentTransport={transport}
 					elapsedMinutesCurrent={elapsedMinutesCurrent}
-					selectedTransport={selectedTransport}
+					selectedTransports={selectedTransports}
 				/>
 			</div>
 		</>

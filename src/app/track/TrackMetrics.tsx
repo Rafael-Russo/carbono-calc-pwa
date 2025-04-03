@@ -11,7 +11,8 @@ type TrackMetricsProps = {
 	totalCarbon: number;
 	currentTransport: string;
 	elapsedMinutesCurrent: number;
-	selectedTransport: string;
+	// Alterado para receber array de transportes
+	selectedTransports: string[];
 };
 
 const TrackMetrics: React.FC<TrackMetricsProps> = ({
@@ -19,12 +20,14 @@ const TrackMetrics: React.FC<TrackMetricsProps> = ({
 	totalCarbon,
 	currentTransport,
 	elapsedMinutesCurrent,
-	selectedTransport,
+	selectedTransports,
 }) => {
+	// Se nenhum estiver selecionado, exibe "Todos"
+	const headerLabel = selectedTransports.length === 0 ? "Todos" : selectedTransports.join(", ");
 	return (
 		<div className="track-metrics-grid grid grid-cols-1 md:grid-cols-2 gap-4">
 			<div className="card">
-				<h3 className="font-semibold">Métricas ({selectedTransport})</h3>
+				<h3 className="font-semibold">Métricas ({headerLabel})</h3>
 				<p>Distância: {aggregated.distance.toFixed(2)} km</p>
 				<p>Tempo: {aggregated.elapsedMinutes} min</p>
 				<p>Pegada de Carbono: {aggregated.carbon.toFixed(2)} kg CO₂</p>

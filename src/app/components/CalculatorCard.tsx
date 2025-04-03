@@ -1,4 +1,4 @@
-import React, { useState, FormEvent } from "react";
+import React, { useState, FormEvent, useEffect } from "react";
 import { saveData, deleteData } from "../../utils/dataStorage";
 
 interface CalculatorCardProps {
@@ -11,6 +11,13 @@ interface CalculatorCardProps {
 
 export default function CalculatorCard({ title, placeholder, calculate, storageKey, unit = "kg CO2e" }: CalculatorCardProps) {
   const [result, setResult] = useState<number | null>(null);
+
+  useEffect(() => {
+    const savedValue = localStorage.getItem(storageKey);
+    if (savedValue) {
+      setResult(parseFloat(savedValue));
+    }
+  }, [storageKey]);
 
   const handleSubmit = (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -47,7 +54,7 @@ export default function CalculatorCard({ title, placeholder, calculate, storageK
           <button
             type="button"
             onClick={handleReset}
-            className="btn bg-yellow-500 text-white ml-auto" // Botão modificado para preenchido e alinhado à direita
+            className="btn bg-yellow-500 text-white ml-auto"
           >
             Refazer cálculo
           </button>
