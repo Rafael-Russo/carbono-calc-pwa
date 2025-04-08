@@ -1,7 +1,18 @@
 "use client";
 import dynamic from "next/dynamic";
+import { useEffect, useState } from "react";
+import { getDynamicData } from "../../utils/dataStorage";
 import DashboardDateFilter from "./DashboardDateFilter";
 import Navigation from "../components/Navigation";
+
+const metricTitles = {
+  "Energia": "Energia Consumida",
+  "GLP": "Gás Consumido",
+  "Gás Natural": "Gás Natural Consumido",
+  "Transporte Terrestre": "Km Andados",
+  "Transporte Aéreo": "Transporte Aéreo",
+  "Rastreio": "Rastreio de Carbono",
+};
 
 // Importação dinâmica do gráfico com SSR desabilitado
 const PieChartWrapper = dynamic(
@@ -9,17 +20,40 @@ const PieChartWrapper = dynamic(
   { ssr: false }
 );
 
-const data = [
-  { name: "Energia", value: 200 },
-  { name: "GLP", value: 150 },
-  { name: "Gás Natural", value: 100 },
-  { name: "Transporte Terrestre", value: 250 },
-  { name: "Transporte Aéreo", value: 50 },
-  { name: "Rastreio", value: 300 },
-];
-
 export default function DashboardPage() {
-  const total = data.reduce((sum, entry) => sum + entry.value, 0);
+  const [data, setData] = useState([]);
+
+  useEffect(() => {
+    const fetchData = () => {
+      const dynamicData = getDynamicData();
+      setData(dynamicData);
+    };
+
+    fetchData();
+
+    // Adiciona um listener para atualizar os dados quando o localStorage mudar
+    window.addEventListener("storage", fetchData);
+
+    return () => {
+      window.removeEventListener("storage", fetchData);
+    };
+  }, []);
+
+  const getMetricUnit = (name: string) => {
+    switch (name) {
+      case "Transporte Terrestre":
+        return "km";
+      case "GLP":
+        return "kg";
+      case "Energia":
+        return "kWh";
+      default:
+        return "";
+    }
+  };
+
+  const total = parseFloat(data.reduce((sum, entry) => sum + entry.value, 0).toFixed(2));
+
   return (
     <>
       {/* Navigation ocupando toda a largura */}
@@ -32,12 +66,6 @@ export default function DashboardPage() {
         {/* PieChart em linha separada */}
         <div className="chart-container">
           <PieChartWrapper />
-          {/* Total centralizado */}
-          <div className="chart-total">
-            <div className="bg-white rounded-full p-2">
-              <span className="text-xl font-bold text-[var(--green)]">{total} kg CO₂</span>
-            </div>
-          </div>
         </div>
 
         {/* Card de Filtro com estilo de card */}
@@ -47,14 +75,14 @@ export default function DashboardPage() {
 
         {/* Cards de Métricas */}
         <div className="metrics-grid">
-          <div className="card">
-            <h3 className="text-lg font-semibold text-[var(--green)]">Km Andados</h3>
-            <p className="text-[var(--green)]">-- km</p>
-          </div>
-          <div className="card">
-            <h3 className="text-lg font-semibold text-[var(--green)]">Gás Consumido</h3>
-            <p className="text-[var(--green)]">-- kg</p>
-          </div>
+          {data.map((metric) => (
+            <div key={metric.name} className="card">
+              <h3 className="text-lg font-semibold text-[var(--green)]">{metricTitles[metric.name]}</h3>
+              <p className="text-[var(--green)]">
+                {metric.value.toFixed(2)} {getMetricUnit(metric.name)}
+              </p>
+            </div>
+          ))}
         </div>
       </div>
     </>

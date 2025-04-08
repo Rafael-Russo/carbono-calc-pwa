@@ -30,7 +30,7 @@ export default function TrackPage() {
 	const [transport, setTransport] = useState("--");
 	const [route, setRoute] = useState<RoutePoint[]>([]);
 	const [routeMetrics, setRouteMetrics] = useState<RouteMetric[]>([]);
-	const [selectedTransports, setSelectedTransports] = useState<string[]>(["Carro", "Bicicleta", "A pé", "Onibus", "Moto", "Avião"]);
+	const [selectedTransports, setSelectedTransports] = useState<string[]>(["Carro", "Bicicleta", "A pé", "Moto", "Avião"]);
 
 	useEffect(() => {
 		const storedRoute = localStorage.getItem("trackedRoute");
@@ -88,7 +88,7 @@ export default function TrackPage() {
 						longitude
 					);
 					// Novo: não salvar movimento se distância incremental for inferior a 50 metros (0.05 km)
-					const minDistanceThreshold = 0.05;
+					const minDistanceThreshold = 0.01;
 					if (incrementalDist < minDistanceThreshold) {
 						// ...usuário parado; ignora atualização...
 						return;
@@ -115,13 +115,15 @@ export default function TrackPage() {
 						carbon = calculateLandTransportCarbon(newDistance);
 					}
 
+					carbon = parseFloat(carbon.toFixed(2));
+
 					const elapsed = Math.floor((currentTime - (startTime as number)) / 60000);
 					setRouteMetrics(prev => {
 						const updated = [...prev];
 						const lastIndex = updated.length - 1;
 						updated[lastIndex] = {
 							transport: currentTransport,
-							distance: newDistance,
+							distance: parseFloat(newDistance.toFixed(2)),
 							elapsedMinutes: elapsed,
 							carbon,
 							date: currentTime,

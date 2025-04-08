@@ -1,7 +1,16 @@
+"use client";
+
 import Image from "next/image";
 import Link from "next/link";
 
 export default function Home() {
+  const clearLocalStorage = () => {
+    if (confirm("Tem certeza que deseja remover todos os dados?")) {
+      localStorage.clear();
+      alert("Todos os dados foram removidos com sucesso!");
+    }
+  };
+
   return (
     <div className="home-container">
       <div className="home-content">
@@ -23,6 +32,9 @@ export default function Home() {
               Dashboard
             </button>
           </Link>
+          <button className="home-button" onClick={clearLocalStorage}>
+            Remover Todos os Dados
+          </button>
         </div>
       </div>
     </div>
