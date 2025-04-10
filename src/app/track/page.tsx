@@ -30,7 +30,7 @@ export default function TrackPage() {
 	const [transport, setTransport] = useState("--");
 	const [route, setRoute] = useState<RoutePoint[]>([]);
 	const [routeMetrics, setRouteMetrics] = useState<RouteMetric[]>([]);
-	const [selectedTransports, setSelectedTransports] = useState<string[]>(["Carro", "Bicicleta", "A pé", "Moto", "Avião"]);
+	const [selectedTransports, setSelectedTransports] = useState<string[]>([]);
 
 	useEffect(() => {
 		const storedRoute = localStorage.getItem("trackedRoute");
@@ -60,13 +60,13 @@ export default function TrackPage() {
 				const { latitude, longitude } = position.coords;
 				const currentTime = Date.now();
 				if (!startTime) {
-					const newPoint: RoutePoint = { lat: latitude, lon: longitude, transport: "--" };
+					const newPoint: RoutePoint = { lat: latitude, lon: longitude, transport: "A pé" };
 					setStartTime(currentTime);
 					setPrevPosition({ lat: latitude, lon: longitude });
 					setRoute(prev => [...prev, newPoint]);
 					saveData("trackedRoute", JSON.stringify(newPoint));
 					const newMetric: RouteMetric = {
-						transport: "--",
+						transport: "A pé",
 						distance: 0,
 						elapsedMinutes: 0,
 						carbon: 0,
@@ -100,7 +100,7 @@ export default function TrackPage() {
 					const avgSpeed = calculateAverageSpeed(newDistance, startTime, currentTime);
 					const currentTransport = determineTransport(avgSpeed);
 					setTransport(currentTransport);
-					const newPoint: RoutePoint = { lat: latitude, lon: longitude, transport: currentTransport };
+					const newPoint: RoutePoint = { lat: latitude, lon: longitude, transport: currentTransport || "A pé" };
 					setRoute(prev => [...prev, newPoint]);
 					saveData("trackedRoute", JSON.stringify(newPoint));
 
@@ -145,9 +145,13 @@ export default function TrackPage() {
 			? true
 			: (selectedTransports.includes(metric.transport) || metric.transport === "--")
 	);
-	const filteredRoute = route.filter(point =>
-		selectedTransports.includes(point.transport) || point.transport === "--"
-	);
+	const filteredRoute = selectedTransports.length === 0 
+			? (route.length > 0 ? route : (prevPosition ? [{ lat: prevPosition.lat, lon: prevPosition.lon, transport: "A pé" }] : []))
+			: route.filter(point => selectedTransports.includes(point.transport));
+
+	if (filteredRoute.length === 0 && prevPosition) {
+		filteredRoute.push({ lat: prevPosition.lat, lon: prevPosition.lon, transport: "A pé" });
+	}
 
 	const aggregated = filteredMetrics.reduce(
 		(acc, cur) => ({
